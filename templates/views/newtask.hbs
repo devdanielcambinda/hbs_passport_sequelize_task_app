@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/form.css" />
+    <title>{{title}}</title>
+  </head>
+  <body>
+      <div class="main-content">
+        {{>header}}
+        <form action="/newtask" method="post">
+              <div class="container">
+                <p>Please fill in this form to create a new task.</p>
+                <hr>
+
+                <label for="description"><b>Description</b></label>
+                <input type="text" placeholder="Enter Description" name="description" id="description" required>
+
+                <label  for="completed"><b>Completed</b></label>
+                <div class="select">
+                  <select id="completed" name="completed" required>
+                  <option value="true">Completed</option>
+                  <option value="false">Not completed</option>
+                </select>
+                </div>
+
+                <hr>
+                <button type="submit" class="registerbtn">Add</button>
+
+              </div>
+          </form>
+      </div>
+  
+      {{>footer}}
+  </body>
+</html>

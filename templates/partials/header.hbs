@@ -1,0 +1,15 @@
+<header>
+  <h1>{{title}}</h1>
+  {{#if user}}
+    <a href="/">Home</a>
+    <a href="/tasks">Tasks</a>
+    <a href="/newtask">New Task</a>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+  {{else}}
+    <a href="/">Home</a>
+    <a href="/signup">Sign up</a>
+    <a href="/login">Login</a>
+  {{/if}}
+
+</header>
