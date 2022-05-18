@@ -11,10 +11,30 @@
   <body>
       <div class="main-content">
         {{>header}}
-        <form action="/newtask" method="post">
+
+        <h3><b>Tasks:</b></h3>
+        <hr>
+        {{#each tasks}}
+          <p>Id: {{id}}</p>
+          <p>Descritpion: {{description}} </p>
+          <p>Completed: {{completed}}</p>
+          <hr>
+        {{/each}}
+
+        <form action="/edittask" method="patch">
               <div class="container">
-                <p>Please fill in this form to create a new task.</p>
+                <p>If you don't know the task id you can consult the list above to make sure you edit the correct task.</p>
                 <hr>
+
+                <label for="id"><b>Task id</b></label>
+                <div class="select">
+                    <select name="id" id="id" required>
+                        {{#each tasks}}
+                        <option value="{{id}}">{{id}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <br>
 
                 <label for="description"><b>Description</b></label>
                 <input type="text" placeholder="Enter Description" name="description" id="description" required>
@@ -27,7 +47,6 @@
                 </select>
                 </div>
 
-                <br>
                 <hr>
                 <button type="submit" class="registerbtn">Add</button>
 

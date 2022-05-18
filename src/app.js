@@ -144,9 +144,8 @@ app.post("/newtask", isAuthenticated,async (req, res) => {
 
 app.get("/tasks", isAuthenticated,async (req, res) => {
 
-  const tasks = await Task.findAll({ where: { UserId: req.user.id } });
-
   try {
+    const tasks = await Task.findAll({ where: { UserId: req.user.id } });
     res.render("tasks", {
       title: "Tasks",
       name: "Daniel Cambinda",
@@ -161,6 +160,43 @@ app.get("/tasks", isAuthenticated,async (req, res) => {
     });
   }
   
+});
+
+app.get('/edittask',isAuthenticated, async (req,res)=>{
+
+  try {
+
+    const tasks = await Task.findAll({ where: { UserId: req.user.id } })
+    res.render("edittask", {
+      title: "Edit task",
+      name: "Daniel Cambinda",
+      user: req.user,
+      tasks
+    });
+
+  } catch (e) {
+    res.render("ErrorPage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+    });
+  }
+})
+
+app.patch("/edittask", isAuthenticated, async (req, res) => {
+  
+  try {
+
+
+  } catch (e) {
+
+    res.render("ErrorPage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+    })
+
+  }
 });
 
 app.get("/profile", isAuthenticated, (req, res) => {
