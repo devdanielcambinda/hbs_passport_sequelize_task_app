@@ -42,7 +42,7 @@ const isAuthenticated = (req, res, next) => {
       error: "User not authenticated",
       title: "Authentication needed",
       name: "Daniel Cambinda",
-      logged: false,
+      user: req.user,
     });
 };
 
@@ -61,7 +61,7 @@ app.get("/signup", (req, res) => {
   res.render("register", {
     title: "Sign up",
     name: "Daniel Cambinda",
-    user: req.user
+    user: req.user,
   });
 });
 
@@ -76,16 +76,17 @@ app.post("/signup", async (req, res) => {
     res.render("RegisterDone", {
       title: "Signup completed",
       name: "Daniel Cambinda",
-      user:req.user,
-      email: user.email
+      user: req.user,
+      email: user.email,
     });
 
     //sendWelcomeEmail(user.email,user.name)
   } catch (e) {
-    res.render("ErrorPage", {
+    res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
-      user: req.user
+      user: req.user,
+      message: "Something went wrong. Please try again.",
     });
   }
 });
@@ -98,7 +99,7 @@ app.get("/login", (req, res) => {
   res.render("login", {
     title: "Login",
     name: "Daniel Cambinda",
-    user: req.user
+    user: req.user,
   });
 });
 
@@ -106,13 +107,10 @@ app.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login",
-    failureMessage: false,
+    failureMessage: true,
+    successRedirect: "/tasks",
   }),
-  (req, res) => {
-    if (req.isAuthenticated) {
-      return res.redirect("/");
-    }
-  }
+  (req, res) => {}
 );
 
 // need auth
@@ -121,100 +119,138 @@ app.get("/newtask", isAuthenticated, (req, res) => {
     res.render("newtask", {
       title: "New task",
       name: "Daniel Cambinda",
-      user: req.user
+      user: req.user,
     });
   }
 });
-app.post("/newtask", isAuthenticated,async (req, res) => {
-    const user = req.user
-    try {
-        await user.createTask({
-                description: req.body.description,
-                completed: req.body.completed
-        })
-        res.redirect('/tasks')
-    } catch (e) {
-      res.render("ErrorPage", {
-        title: "Error",
-        name: "Daniel Cambinda",
-        user: req.user
-      });
-    }
+app.post("/newtask", isAuthenticated, async (req, res) => {
+  const user = req.user;
+  try {
+    await user.createTask({
+      description: req.body.description,
+      completed: req.body.completed,
+    });
+    res.redirect("/tasks");
+  } catch (e) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+    });
+  }
 });
 
-app.get("/tasks", isAuthenticated,async (req, res) => {
-
+app.get("/tasks", isAuthenticated, async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });
     res.render("tasks", {
       title: "Tasks",
       name: "Daniel Cambinda",
-      user:req.user,
-      tasks
+      user: req.user,
+      tasks,
     });
   } catch (e) {
-    res.render("ErrorPage", {
+    res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
       user: req.user,
     });
   }
-  
 });
 
-app.get('/edittask',isAuthenticated, async (req,res)=>{
-
+app.get("/edittask", isAuthenticated, async (req, res) => {
   try {
+    const tasks = await Task.findAll({ where: { UserId: req.user.id } });
+    const tasksCount = await Task.count({ where: { UserId: req.user.id } });
 
-    const tasks = await Task.findAll({ where: { UserId: req.user.id } })
+    if(tasksCount === 0){
+      return res.render("messagePage", {
+        title: "No Tasks Yet",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "You have no tasks"
+      });
+    }
     res.render("edittask", {
       title: "Edit task",
       name: "Daniel Cambinda",
       user: req.user,
-      tasks
+      tasks,
     });
-
   } catch (e) {
-    res.render("ErrorPage", {
+    res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
       user: req.user,
+      message: "Something went wrong. Please try again.",
     });
   }
-})
+});
 
-app.patch("/edittask", isAuthenticated, async (req, res) => {
+app.post("/edittask", isAuthenticated, async (req, res) => {
+  const formId = req.body.id;
+  const formDescription = req.body.description;
+  const formCompleted = req.body.completed;
   
   try {
+    const task = await Task.findOne({ where: { id: formId } });
 
+    console.log(formCompleted !== String(task.completed));
 
+    if (task.UserId !== req.user.id) {
+     return res.render("messagePage", {
+        title: "Error",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "You don't own this task",
+      });
+    }
+
+    if(formDescription.length === 0 && formCompleted === String(task.completed)){
+      return res.render('messagePage',{
+        title:'No changes applied',
+        name: 'Daniel Cambinda',
+        user:req.user,
+        message:'No changes applied.'
+      })
+    }
+
+    if (formDescription.length === 0 && formCompleted !== String(task.completed)) {
+      task.completed = formCompleted;
+      await task.save();
+      return res.redirect('/tasks')
+    }
+
+     task.description = formDescription
+     task.completed = formCompleted
+     await task.save()
+
+    res.redirect("/tasks");
   } catch (e) {
-
-    res.render("ErrorPage", {
+    res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
       user: req.user,
-    })
-
+      message: "Something went wrong. Please try again.",
+    });
   }
 });
 
 app.get("/profile", isAuthenticated, (req, res) => {
-
   try {
     res.render("profile", {
       title: "Profile",
       name: "Daniel Cambinda",
       user: req.user,
-  });
+    });
   } catch (e) {
-    res.render("ErrorPage", {
+    res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
       user: req.user,
+      message: "Something went wrong. Please try again.",
     });
   }
-  
 });
 
 app.get("/logout", isAuthenticated, (req, res) => {
@@ -228,7 +264,7 @@ app.get("*", (req, res) => {
   return res.render("404", {
     title: "404 Page not found",
     name: "Daniel Cambinda",
-    user: req.user
+    user: req.user,
   });
 });
 

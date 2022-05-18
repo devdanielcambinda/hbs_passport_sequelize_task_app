@@ -21,7 +21,7 @@
           <hr>
         {{/each}}
 
-        <form action="/edittask" method="patch">
+        <form action="/edittask" method="post">
               <div class="container">
                 <p>If you don't know the task id you can consult the list above to make sure you edit the correct task.</p>
                 <hr>
@@ -30,18 +30,19 @@
                 <div class="select">
                     <select name="id" id="id" required>
                         {{#each tasks}}
-                        <option value="{{id}}">{{id}}</option>
+                        <option value={{id}} >{{id}}</option>
                         {{/each}}
                     </select>
                 </div>
                 <br>
-
+              
                 <label for="description"><b>Description</b></label>
-                <input type="text" placeholder="Enter Description" name="description" id="description" required>
+                <input type="text" placeholder="Enter Description (if it is the same leave it empty)" name="description" id="description">
+
 
                 <label  for="completed"><b>Completed</b></label>
                 <div class="select">
-                  <select id="completed" name="completed" required>
+                  <select id="completed" name="completed">
                   <option value="true">Completed</option>
                   <option value="false">Not completed</option>
                 </select>
