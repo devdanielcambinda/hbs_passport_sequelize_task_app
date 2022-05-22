@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -21,7 +21,7 @@
           <hr>
         {{/each}}
 
-        <form action="/edittask" method="post">
+        <form action="/deletetask" method="post">
               <div class="container">
                 <p>If you don't know the task id you can consult the list above to make sure you edit the correct task.</p>
                 <hr>
@@ -35,18 +35,6 @@
                     </select>
                 </div>
                 <br>
-              
-                <label for="description"><b>Description</b></label>
-                <input type="text" placeholder="Enter Description (if it is the same leave it empty)" name="description" id="description">
-
-
-                <label  for="completed"><b>Completed</b></label>
-                <div class="select">
-                  <select id="completed" name="completed">
-                  <option value="true">Completed</option>
-                  <option value="false">Not completed</option>
-                </select>
-                </div>
 
                 <hr>
                 <button type="submit" class="registerbtn">Submit</button>

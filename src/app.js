@@ -143,6 +143,17 @@ app.post("/newtask", isAuthenticated, async (req, res) => {
 app.get("/tasks", isAuthenticated, async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });
+    const tasksCount = await Task.count({ where: { UserId: req.user.id } });
+
+    if(tasksCount ===0){
+      return res.render("messagePage", {
+        title: "No Tasks Yet",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "You have no tasks",
+      });
+    }
+
     res.render("tasks", {
       title: "Tasks",
       name: "Daniel Cambinda",
@@ -195,8 +206,6 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
   try {
     const task = await Task.findOne({ where: { id: formId } });
 
-    console.log(formCompleted !== String(task.completed));
-
     if (task.UserId !== req.user.id) {
      return res.render("messagePage", {
         title: "Error",
@@ -236,6 +245,50 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
   }
 });
 
+app.get('/deletetask', isAuthenticated, async (req,res)=>{
+  try {
+    const tasks = await Task.findAll({ where: { UserId: req.user.id } });
+    const tasksCount = await Task.count({ where: { UserId: req.user.id } });
+
+    if(tasksCount === 0){
+      return res.render("messagePage", {
+        title: "No Tasks Yet",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "You have no tasks"
+      });
+    }
+    res.render("deletetask", {
+      title: "Delete task",
+      name: "Daniel Cambinda",
+      user: req.user,
+      tasks,
+    });
+  } catch (e) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+})
+
+app.post('/deletetask', isAuthenticated,async (req,res)=>{
+  const formId = req.body.id
+  try {
+    await Task.destroy({where:{id:formId}})
+    res.redirect('/tasks')
+  } catch (e) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+})
+
 app.get("/profile", isAuthenticated, (req, res) => {
   try {
     res.render("profile", {
@@ -252,6 +305,10 @@ app.get("/profile", isAuthenticated, (req, res) => {
     });
   }
 });
+
+app.post('/profile', isAuthenticated, async (req,res)=>{
+  
+})
 
 app.get("/logout", isAuthenticated, (req, res) => {
   req.logout();
