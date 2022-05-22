@@ -7,7 +7,7 @@ const sendWelcomeEmail = (email, name) => {
     to: email,
     from: process.env.SENDGRID_FROM,
     subject: "Thanks for joining in!",
-    text: `Welcome to the app, ${name}. Let me know you get along with the app.`,
+    text: `Welcome to the app, ${name}. Let me know you if you have any sugestion to improve the app.`,
   });
 };
 
