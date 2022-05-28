@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize')
 const bcrypt = require("bcryptjs")
 
-const sequelize = require('../database/db')
+const sequelize = require('../database/db');
+const { options } = require('../app');
 
 //set user table
 const User = sequelize.define(
@@ -38,11 +39,15 @@ const User = sequelize.define(
   }
 );
 
-User.beforeCreate( async (user,options) => {
+User.beforeSave( async (user,options) => {
+
+  if(user.changed('password')){
     user.password =  await bcrypt.hash(user.password,10)
+  }
+
 })
 
-//model method
+//instance method
 User.prototype.validPassword =function(password){
     return bcrypt.compare(password,this.password)
 }

@@ -6,6 +6,7 @@ const hbs = require("hbs");
 const User = require("./models/user");
 const Task = require("./models/task");
 const session = require("express-session");
+const flash = require('express-flash')
 const passport = require("passport");
 require("../config/passport");
 const { sendWelcomeEmail, sendCancelationEmail } = require("./emails/account");
@@ -25,6 +26,7 @@ app.use(express.static(publicDirectoryPath));
 
 //Setup static directory to serve
 app.use(express.urlencoded({ extended: false }));
+app.use(flash())
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -99,7 +101,7 @@ app.get("/login", (req, res) => {
   res.render("login", {
     title: "Login",
     name: "Daniel Cambinda",
-    user: req.user,
+    user: req.user
   });
 });
 
@@ -107,7 +109,7 @@ app.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login",
-    failureMessage: true,
+    failureFlash: true,
     successRedirect: "/tasks",
   }),
   (req, res) => {}
@@ -306,8 +308,57 @@ app.get("/profile", isAuthenticated, (req, res) => {
   }
 });
 
-app.post('/profile', isAuthenticated, async (req,res)=>{
+app.post('/editprofile', isAuthenticated, async (req,res)=>{
   
+    const formName = req.body.name;
+    const formEmail = req.body.email;
+    const formPassword = req.body.password;
+
+    if (formEmail.length === 0 && formName.length === 0 && formPassword.length === 0) {
+          return res.render("messagePage", {
+            title: "No changes",
+            name: "Daniel Cambinda",
+            user: req.user,
+            message: "No changes applied.",
+          });
+    }
+
+    if(formEmail === req.user.email){
+      return res.render("messagePage", {
+        title: "Error",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "Email alreay in use, try another email."
+      });
+    }
+
+  try { 
+
+    
+    
+  } catch (e) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+})
+
+app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
+  try {
+    await req.user.destroy()
+    req.logOut()
+    res.redirect('/')
+  } catch (error) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+      message: "Something went wrong. Please try again.",
+    });
+  }
 })
 
 app.get("/logout", isAuthenticated, (req, res) => {

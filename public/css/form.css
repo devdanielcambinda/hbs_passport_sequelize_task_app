@@ -40,6 +40,21 @@ hr {
   opacity: 1;
 }
 
+.deletebtn {
+  color: white;
+  border: 1px solid #888888;
+  background: #e21515;
+  padding: 16px 20px;
+  margin: 8px 0;
+  cursor: pointer;
+  width: 105%;
+  opacity: 0.9;
+}
+
+.deletebtn:hover {
+  opacity: 1;
+}
+
 /* Add a blue text color to links */
 a {
   color: dodgerblue;

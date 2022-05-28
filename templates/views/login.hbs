@@ -16,6 +16,9 @@
                 <p>Please fill in this form to log in to your account.</p>
                 <hr>
 
+                {{#if messages.error}}
+                <p style="color:rgb(255, 0, 21);text-align:center;">{{messages.error}}</p>
+                {{/if}}
                 <label for="email"><b>Email</b></label>
                 <input type="text" placeholder="Enter Email" name="email" id="email" required>
 

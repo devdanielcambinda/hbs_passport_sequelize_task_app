@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/form.css" />
     <title>{{title}}</title>
   </head>
   <body>
@@ -14,6 +15,32 @@
       <p><b>Name:</b> {{name}}</p>
       <p><b>Email</b> {{email}}</p>
       {{/with}}
+
+      <form action="/deleteprofile" method="post">
+          <button type="submit" class="deletebtn">DELETE ACCOUNT</button>
+      </form>
+
+      <form action="/editprofile" method="post">
+              <div class="container">
+                <p>Fill this form if you want to change any information of your profile. If the password is changed you'll be logged out.</p>
+                <hr>
+
+                <label for="name"><b>Name</b></label>
+                <input type="text" placeholder="Enter Name" name="name" id="name" >
+
+                <label for="email"><b>Email</b></label>
+                <input type="email" placeholder="Enter Email" name="email" id="email" >
+
+                <label for="password"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="password" id="password">
+                </div>
+
+                <hr>
+                <button type="submit" class="registerbtn">Submit</button>
+
+              </div>
+          </form>
+
       </div>
   
       {{>footer}}
