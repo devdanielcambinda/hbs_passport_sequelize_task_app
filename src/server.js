@@ -1,6 +1,11 @@
 const app = require("./app");
 const port = process.env.PORT || 3000 ;
 const sequelize = require('./database/db')
+const User = require('./models/user')
+const Task = require("./models/task");
+
+User.hasMany(Task);
+Task.belongsTo(User);
 
 app.listen(port,async () => {
   console.log(`Server is up on port ${port}`);

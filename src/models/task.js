@@ -28,8 +28,4 @@ const Task = sequelize.define("Task",{
   }
 )
 
-User.hasMany(Task);
-Task.belongsTo(User);
-
-
 module.exports = Task

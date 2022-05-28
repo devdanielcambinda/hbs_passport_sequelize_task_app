@@ -16,7 +16,7 @@
       <p><b>Email</b> {{email}}</p>
       {{/with}}
 
-      <form action="/deleteprofile" method="post">
+      <form action="/deleteprofile" method="post" onSubmit="if(!confirm('Are you sure you want to delete your account ?')){return false;}">
           <button type="submit" class="deletebtn">DELETE ACCOUNT</button>
       </form>
 

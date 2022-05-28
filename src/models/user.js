@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize')
+const Task = require('./task.js')
 const bcrypt = require("bcryptjs")
 
 const sequelize = require('../database/db');
-const { options } = require('../app');
 
 //set user table
 const User = sequelize.define(
@@ -44,6 +44,12 @@ User.beforeSave( async (user,options) => {
   if(user.changed('password')){
     user.password =  await bcrypt.hash(user.password,10)
   }
+
+})
+
+User.beforeDestroy( async (user,options)=>{
+
+  await Task.destroy({where:{UserId: user.id}})
 
 })
 

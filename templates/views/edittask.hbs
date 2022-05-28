@@ -17,13 +17,19 @@
         {{#each tasks}}
           <p>Id: {{id}}</p>
           <p>Descritpion: {{description}} </p>
-          <p>Completed: {{completed}}</p>
+          {{#ifCond completed true}}
+          <p>Completed: Yes</p>
+          {{else}}
+          <p>Completed: No</p>
+          {{/ifCond}}
           <hr>
         {{/each}}
 
         <form action="/edittask" method="post">
               <div class="container">
                 <p>If you don't know the task id you can consult the list above to make sure you edit the correct task.</p>
+                <p>If the description field is left empty only the completed field is changed.</p>
+                <p>When changing the description don't forget to check the completed status.</p>
                 <hr>
 
                 <label for="id"><b>Task id</b></label>
@@ -43,8 +49,8 @@
                 <label  for="completed"><b>Completed</b></label>
                 <div class="select">
                   <select id="completed" name="completed">
-                  <option value="true">Completed</option>
-                  <option value="false">Not completed</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
                 </select>
                 </div>
 

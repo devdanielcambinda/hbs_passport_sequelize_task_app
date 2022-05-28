@@ -14,7 +14,11 @@
       <hr>
       {{#each tasks}}
           <p>Descritpion: {{description}} </p>
-          <p>Completed: {{completed}}</p>
+          {{#ifCond completed true}}
+          <p>Completed: Yes</p>
+          {{else}}
+          <p>Completed: No</p>
+          {{/ifCond}}
           <hr>
       {{/each}}
       </div>

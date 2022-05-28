@@ -22,6 +22,12 @@ const partialsPath = path.join(__dirname, "../templates/partials");
 app.set("view engine", "hbs");
 app.set("views", viewsPath);
 hbs.registerPartials(partialsPath);
+hbs.registerHelper("ifCond", function (v1, v2, options) {
+  if (v1 === v2) {
+    return options.fn(this);
+  }
+  return options.inverse(this);
+});
 app.use(express.static(publicDirectoryPath));
 
 //Setup static directory to serve
@@ -352,6 +358,7 @@ app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
     req.logOut()
     res.redirect('/')
   } catch (error) {
+    console.log(error)
     res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
