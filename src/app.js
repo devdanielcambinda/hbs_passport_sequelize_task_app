@@ -316,9 +316,13 @@ app.get("/profile", isAuthenticated, (req, res) => {
 
 app.post('/editprofile', isAuthenticated, async (req,res)=>{
   
+  try { 
+
     const formName = req.body.name;
     const formEmail = req.body.email;
     const formPassword = req.body.password;
+
+    const user = await User.findOne({ where: { email: formEmail } });
 
     if (formEmail.length === 0 && formName.length === 0 && formPassword.length === 0) {
           return res.render("messagePage", {
@@ -334,13 +338,67 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
         title: "Error",
         name: "Daniel Cambinda",
         user: req.user,
-        message: "Email alreay in use, try another email."
+        message: "You are try to change to your own email, try another email."
       });
     }
 
-  try { 
+    if (formEmail.length !== 0 && user) {
+      return res.render("messagePage", {
+        title: "Email in use",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "This email is already in use. Try another email",
+      });
+    }
 
-    
+    if(formEmail.length === 0 && formPassword.length === 0){ // only change name
+      req.user.name = formName
+      await req.user.save({fields:['name']})
+      return res.redirect('/profile')
+    }
+
+    if(formName.length === 0 && formPassword.length === 0){ // only change email
+      req.user.email = formEmail;
+      await req.user.save({ fields: ["email"] });
+      return res.redirect("/profile");
+    }
+
+    if(formEmail.length === 0 && formName.length === 0){ //only change password
+      req.user.password = formPassword;
+      await req.user.save({ fields: ["password"] });
+      req.logOut()
+      return res.redirect("/login");
+    }
+
+    if(formName.length === 0 ){ //change email and password
+      req.user.email = formEmail;
+      req.user.password = formPassword;
+      await req.user.save({ fields: ['email',"password"] });
+      req.logOut();
+      return res.redirect("/login");
+    }
+
+    if(formEmail.length === 0 ){ //change name and password
+      req.user.name = formName;
+      req.user.password = formPassword;
+      await req.user.save({ fields: ["name", "password"] });
+      req.logOut()
+      return res.redirect('/login')
+    }
+
+    if(formPassword.length === 0 ){ //change name and email
+      req.user.email = formEmail;
+      req.user.name = formName;
+      await req.user.save({ fields: ["email", "name"] });
+      return res.redirect("/profile");
+    }
+
+    req.user.name = formName;
+    req.user.password = formPassword;
+    req.user.email = formEmail
+    await req.user.save({ fields: ["name", "password",'email'] });
+    req.logOut();
+    res.redirect('/login')
     
   } catch (e) {
     res.render("messagePage", {
@@ -354,8 +412,11 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
 
 app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
   try {
+    let emailToSend=req.user.email
+    let nameToSend = req.user.name
     await req.user.destroy()
     req.logOut()
+    sendCancelationEmail(emailToSend,nameToSend)    
     res.redirect('/')
   } catch (error) {
     console.log(error)
