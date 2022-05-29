@@ -46,6 +46,11 @@ header a {
     flex-grow: 1;
 }
 
+.main-content a{
+    color: #888888;
+    text-decoration: none;
+}
+
 input{
     border: 1px solid #cccccc;
     padding: 8px;
