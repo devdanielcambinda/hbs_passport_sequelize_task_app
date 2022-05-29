@@ -412,12 +412,14 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
 
 app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
   try {
+
     let emailToSend=req.user.email
     let nameToSend = req.user.name
     await req.user.destroy()
     req.logOut()
-    sendCancelationEmail(emailToSend,nameToSend)    
+    //sendCancelationEmail(emailToSend,nameToSend)    
     res.redirect('/')
+
   } catch (error) {
     console.log(error)
     res.render("messagePage", {
