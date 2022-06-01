@@ -17,6 +17,12 @@ const Task = sequelize.define("Task",{
       unique: false,
       allowNull: false,
     },
+    Date:{
+      required:true,
+      type:Sequelize.DATEONLY,
+      allowNull:false,
+      unique:false
+    },
     completed: {
       type: Sequelize.BOOLEAN,
       required: true,
