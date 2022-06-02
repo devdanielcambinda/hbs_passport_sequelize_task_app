@@ -18,7 +18,8 @@
 
                 <label for="description"><b>Description</b></label>
                 <input type="text" placeholder="Enter Description" name="description" id="description" required>
-
+                <label for="datefiled"><b>Date</b></label>
+                <input id="datefield" name="datefield" type='date' required>
                 <label  for="completed"><b>Completed</b></label>
                 <div class="select">
                   <select id="completed" name="completed" required>
@@ -36,5 +37,6 @@
       </div>
   
       {{>footer}}
+      <script src="/js/date.js"></script>
   </body>
 </html>

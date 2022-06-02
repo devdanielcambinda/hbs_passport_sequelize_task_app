@@ -123,19 +123,19 @@ app.post(
 
 // need auth
 app.get("/newtask", isAuthenticated, (req, res) => {
-  if (req.isAuthenticated) {
+  
     res.render("newtask", {
       title: "New task",
       name: "Daniel Cambinda",
       user: req.user,
     });
-  }
 });
 app.post("/newtask", isAuthenticated, async (req, res) => {
   const user = req.user;
   try {
     await user.createTask({
       description: req.body.description,
+      date: req.body.datefield,
       completed: req.body.completed,
     });
     res.redirect("/tasks");

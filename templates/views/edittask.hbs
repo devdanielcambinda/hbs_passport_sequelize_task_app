@@ -17,6 +17,7 @@
         {{#each tasks}}
           <p>Id: {{id}}</p>
           <p>Description: {{description}} </p>
+          <p>Date {{date}}</p>
           {{#ifCond completed true}}
           <p>Completed: Yes</p>
           {{else}}
@@ -45,6 +46,8 @@
                 <label for="description"><b>Description</b></label>
                 <input type="text" placeholder="Enter Description (if it is the same leave it empty)" name="description" id="description">
 
+                <label for="datefiled"><b>Date</b></label>
+                <input id="datefield" name="datefield" type='date' required>
 
                 <label  for="completed"><b>Completed</b></label>
                 <div class="select">
@@ -62,5 +65,6 @@
       </div>
   
       {{>footer}}
+      <script src="/js/date.js"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@ const Task = sequelize.define("Task",{
       unique: false,
       allowNull: false,
     },
-    Date:{
+    date:{
       required:true,
       type:Sequelize.DATEONLY,
       allowNull:false,
