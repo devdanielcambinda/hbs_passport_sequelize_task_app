@@ -13,11 +13,11 @@
       {{>header}}
       <form action="/filteredtasks" method="get">
       
-      <label for=""><b>Description</b> </label>
+      <input type="checkbox" name="cb_description" id="cb_description"><label for="description"><b>Description</b> </label>
       <input type="text" name="description" id="description">
-      <label for="Date"><b>Date</b></label>
+      <input type="checkbox" name="cb_date" id="cb_date"><label for="date"><b>Date</b></label>
       <input type="date" name="datefield" id="datefield">
-      <label  for="completed"><b>Completed</b></label>
+      <input type="checkbox" name="cb_completed" id="cb_completed"><label  for="completed"><b>Completed</b></label>
        <div class="select">
           <select id="completed" name="completed">
             <option value="true">Yes</option>
