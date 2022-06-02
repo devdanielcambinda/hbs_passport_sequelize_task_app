@@ -38,6 +38,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    maxAge: new Date(Date.now() + 3600000),
   })
 );
 app.use(passport.initialize());
@@ -209,6 +210,7 @@ app.get("/edittask", isAuthenticated, async (req, res) => {
 app.post("/edittask", isAuthenticated, async (req, res) => {
   const formId = req.body.id;
   const formDescription = req.body.description;
+  const formDate = req.body.datefield;
   const formCompleted = req.body.completed;
   
   try {
@@ -223,7 +225,7 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
       });
     }
 
-    if(formDescription.length === 0 && formCompleted === String(task.completed)){
+    if(formDescription.length === 0 && formCompleted === String(task.completed) && formDate.length === 0){
       return res.render('messagePage',{
         title:'No changes applied',
         name: 'Daniel Cambinda',
@@ -232,14 +234,49 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
       })
     }
 
-    if (formDescription.length === 0 && formCompleted !== String(task.completed)) {
+    if (formDescription.length === 0 && formDate.length===0) {//only change the completed
       task.completed = formCompleted;
-      await task.save();
+      await task.save({fields:['completed']});
       return res.redirect('/tasks')
+    }
+
+    if(formCompleted === String(task.completed) && formDate.length === 0){// only change the description
+
+      task.description = formDescription
+      await task.save({fields:['description']})
+      return res.redirect('tasks')
+    }
+
+    if(formDescription.length === 0 && formCompleted === String(task.completed)){ //change only the date
+      task.date = formDate
+      await task.save({fields:['date']})
+      return res.redirect('tasks')
+    }
+
+    if(formDescription.length === 0){ // change date and completed
+      task.date = formDate;
+      task.completed = formCompleted;
+      await task.save({ fields: ["date", "completed"] });
+      return res.redirect("tasks");
+    }
+
+    if(formDate.length === 0){ // change description and completed
+      task.completed = formCompleted;
+      task.description = formDescription;
+      await task.save({ fields: ["completed", "description"] });
+      return res.redirect("tasks");
+    }
+
+    if(formCompleted === String(task.completed) && formDate.length >= 0 && formDescription >= 0){ //change description and date
+      task.date = formDate;
+      task.description = formDescription;
+      await task.save({fields:['date','description']})
+      return res.redirect("tasks");
     }
 
      task.description = formDescription
      task.completed = formCompleted
+     task.date = formDate
      await task.save()
 
     res.redirect("/tasks");

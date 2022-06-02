@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 const Task = require('./task.js')
 const bcrypt = require("bcryptjs")
 
@@ -58,6 +59,20 @@ User.prototype.validPassword =function(password){
     return bcrypt.compare(password,this.password)
 }
 
-//create all the define tables in the specified database
+User.prototype.getNotesWithDescriptionsLike= async function(user, searchTerm){
+
+  const tasks = await Task.findAll({
+    where: {
+      description: {
+        [Op.like]: `%${searchTerm}%`,
+      },
+      UserId: user.id
+    }
+  });
+
+  if(tasks){
+    return tasks;
+  }
+}
 
 module.exports = User

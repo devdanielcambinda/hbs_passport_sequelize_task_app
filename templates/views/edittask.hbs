@@ -29,7 +29,7 @@
         <form action="/edittask" method="post">
               <div class="container">
                 <p>If you don't know the task id you can consult the list above to make sure you edit the correct task.</p>
-                <p>If the description field is left empty only the completed field is changed.</p>
+                <p>Empty fields will not change.</p>
                 <p>When changing the description don't forget to check the completed status.</p>
                 <hr>
 
@@ -47,7 +47,7 @@
                 <input type="text" placeholder="Enter Description (if it is the same leave it empty)" name="description" id="description">
 
                 <label for="datefiled"><b>Date</b></label>
-                <input id="datefield" name="datefield" type='date' required>
+                <input id="datefield" name="datefield" type='date' >
 
                 <label  for="completed"><b>Completed</b></label>
                 <div class="select">
