@@ -12,7 +12,7 @@
       <div class="main-content">
       {{>header}}
       <form action="/filteredtasks" method="get">
-      
+      <p>You can filter the by marking the checkbox with what filter you want.</p>
       <input type="checkbox" name="cb_description" id="cb_description"><label for="description"><b>Description</b> </label>
       <input type="text" name="description" id="description">
       <input type="checkbox" name="cb_date" id="cb_date"><label for="date"><b>Date</b></label>
@@ -23,12 +23,11 @@
             <option value="true">Yes</option>
              <option value="false">No</option>
           </select>
-        </div>          
-        <br>
+        </div>
         <hr>
       <input type="submit" value="Seach">
       </form>
-      <h3><b>Tasks:</b></h3>
+      <h3><b>All your tasks:</b></h3>
       <hr>
       {{#each tasks}}
           <p>Description: {{description}} </p>
