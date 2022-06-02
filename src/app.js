@@ -178,6 +178,10 @@ app.get("/tasks", isAuthenticated, async (req, res) => {
   }
 });
 
+app.get("/filteredtasks", isAuthenticated, async (req, res) => {
+  
+});
+
 app.get("/edittask", isAuthenticated, async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });

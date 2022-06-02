@@ -11,10 +11,22 @@
   <body>
       <div class="main-content">
       {{>header}}
-      <form action="/tasks" method="get">
+      <form action="/filteredtasks" method="get">
       
-      
-      
+      <label for=""><b>Description</b> </label>
+      <input type="text" name="description" id="description">
+      <label for="Date"><b>Date</b></label>
+      <input type="date" name="datefield" id="datefield">
+      <label  for="completed"><b>Completed</b></label>
+       <div class="select">
+          <select id="completed" name="completed">
+            <option value="true">Yes</option>
+             <option value="false">No</option>
+          </select>
+        </div>          
+        <br>
+        <hr>
+      <input type="submit" value="Seach">
       </form>
       <h3><b>Tasks:</b></h3>
       <hr>
