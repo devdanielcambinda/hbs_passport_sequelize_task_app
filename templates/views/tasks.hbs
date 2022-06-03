@@ -13,6 +13,8 @@
       {{>header}}
       <form action="/tasks" method="post">
       <p>You can filter the by marking the checkbox with what filter you want.</p>
+      <p>If you select a filter make sure you fill the option you want to search &#40;description and date only&#41;</p>
+      <p>If no filters are selected and search is pressed all the tasks will be displayed.</p>
       <input type="checkbox" name="cb_description" id="cb_description"><label for="description"><b>Description</b> </label>
       <input type="text" name="description" id="description">
       <input type="checkbox" name="cb_date" id="cb_date"><label for="date"><b>Date</b></label>
@@ -27,7 +29,7 @@
         <hr>
       <input type="submit" value="Search">
       </form>
-      <h3><b>All your tasks:</b></h3>
+      <h2><b>Tasks:</b></h2>
       <hr>
       {{#each tasks}}
           <p>Description: {{description}} </p>

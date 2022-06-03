@@ -6,10 +6,12 @@ const hbs = require("hbs");
 const User = require("./models/user");
 const Task = require("./models/task");
 const session = require("express-session");
-const flash = require('express-flash')
+const flash = require("express-flash");
 const passport = require("passport");
 require("../config/passport");
 const { sendWelcomeEmail, sendCancelationEmail } = require("./emails/account");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 const app = express();
 
@@ -32,7 +34,7 @@ app.use(express.static(publicDirectoryPath));
 
 //Setup static directory to serve
 app.use(express.urlencoded({ extended: false }));
-app.use(flash())
+app.use(flash());
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -108,7 +110,7 @@ app.get("/login", (req, res) => {
   res.render("login", {
     title: "Login",
     name: "Daniel Cambinda",
-    user: req.user
+    user: req.user,
   });
 });
 
@@ -124,12 +126,11 @@ app.post(
 
 // need auth
 app.get("/newtask", isAuthenticated, (req, res) => {
-  
-    res.render("newtask", {
-      title: "New task",
-      name: "Daniel Cambinda",
-      user: req.user,
-    });
+  res.render("newtask", {
+    title: "New task",
+    name: "Daniel Cambinda",
+    user: req.user,
+  });
 });
 app.post("/newtask", isAuthenticated, async (req, res) => {
   const user = req.user;
@@ -144,6 +145,7 @@ app.post("/newtask", isAuthenticated, async (req, res) => {
     res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
+      message: "Something went wrong. Please try again.",
       user: req.user,
     });
   }
@@ -154,7 +156,7 @@ app.get("/tasks", isAuthenticated, async (req, res) => {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });
     const tasksCount = await Task.count({ where: { UserId: req.user.id } });
 
-    if(tasksCount ===0){
+    if (tasksCount === 0) {
       return res.render("messagePage", {
         title: "No Tasks Yet",
         name: "Daniel Cambinda",
@@ -173,13 +175,156 @@ app.get("/tasks", isAuthenticated, async (req, res) => {
     res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
+      message: "Something went wrong. Please try again.",
       user: req.user,
     });
   }
 });
 
 app.post("/tasks", isAuthenticated, async (req, res) => {
+  const searchDescription = req.body.description;
+  const searchDate = req.body.datefield;
+  const searchCompleted = req.body.completed;
+
   
+  let tasks;
+
+  try {
+
+    if(!req.body.cb_description && !req.body.cb_date && !req.body.cb_completed){ //show all
+      return res.redirect('/tasks')
+    }
+
+    if(req.body.cb_description && !req.body.cb_date && !req.body.cb_completed){//filter description
+      tasks = await Task.findAll({
+        where: {
+          description: {
+            [Op.like]: `%${searchDescription}%`,
+          },
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+
+    if(!req.body.cb_description && req.body.cb_date && !req.body.cb_completed){//filter date
+      tasks = await Task.findAll({
+        where: {
+          date: new Date(searchDate),
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+
+    if(!req.body.cb_description && !req.body.cb_date && req.body.cb_completed){ //filter completed
+      tasks = await Task.findAll({
+        where: {
+          completed: searchCompleted,
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+
+    if(req.body.cb_description && req.body.cb_date && !req.body.cb_completed){ //filter description and date
+      tasks = await Task.findAll({
+        where: {
+          description: {
+            [Op.like]: `%${searchDescription}%`,
+          },
+          date: new Date(searchDate),
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+
+    if(!req.body.cb_description && req.body.cb_date && req.body.cb_completed){ //filter date and completed
+      tasks = await Task.findAll({
+        where: {
+          date: new Date(searchDate),
+          completed: searchCompleted,
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+
+    if(req.body.cb_description && !req.body.cb_date && req.body.cb_completed){ //filter description and completed
+      tasks = await Task.findAll({
+        where: {
+          description: {
+            [Op.like]: `%${searchDescription}%`,
+          },
+          completed: searchCompleted,
+          UserId: req.user.id,
+        },
+      });
+
+      res.render("tasks", {
+        title: "Tasks",
+        name: "Daniel Cambinda",
+        user: req.user,
+        tasks,
+      });
+    }
+    
+    tasks = await Task.findAll({
+      where: {
+        description: {
+          [Op.like]: `%${searchDescription}%`,
+        },
+        date: new Date(searchDate),
+        completed: searchCompleted,
+        UserId: req.user.id
+      },
+    });
+
+    res.render("tasks", {
+      title: "Tasks",
+      name: "Daniel Cambinda",
+      user: req.user,
+      tasks,
+    });
+  } catch (error) {
+    res.render("messagePage", {
+      title: "Error",
+      name: "Daniel Cambinda",
+      user: req.user,
+      message: "Something went wrong. Please try again.",
+    });
+  }
 });
 
 app.get("/edittask", isAuthenticated, async (req, res) => {
@@ -187,12 +332,12 @@ app.get("/edittask", isAuthenticated, async (req, res) => {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });
     const tasksCount = await Task.count({ where: { UserId: req.user.id } });
 
-    if(tasksCount === 0){
+    if (tasksCount === 0) {
       return res.render("messagePage", {
         title: "No Tasks Yet",
         name: "Daniel Cambinda",
         user: req.user,
-        message: "You have no tasks"
+        message: "You have no tasks",
       });
     }
     res.render("edittask", {
@@ -216,12 +361,12 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
   const formDescription = req.body.description;
   const formDate = req.body.datefield;
   const formCompleted = req.body.completed;
-  
+
   try {
     const task = await Task.findOne({ where: { id: formId } });
 
     if (task.UserId !== req.user.id) {
-     return res.render("messagePage", {
+      return res.render("messagePage", {
         title: "Error",
         name: "Daniel Cambinda",
         user: req.user,
@@ -229,59 +374,76 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
       });
     }
 
-    if(formDescription.length === 0 && formCompleted === String(task.completed) && formDate.length === 0){
-      return res.render('messagePage',{
-        title:'No changes applied',
-        name: 'Daniel Cambinda',
-        user:req.user,
-        message:'No changes applied.'
-      })
+    if (
+      formDescription.length === 0 &&
+      formCompleted === String(task.completed) &&
+      formDate.length === 0
+    ) {
+      return res.render("messagePage", {
+        title: "No changes applied",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "No changes applied.",
+      });
     }
 
-    if (formDescription.length === 0 && formDate.length===0) {//only change the completed
+    if (formDescription.length === 0 && formDate.length === 0) {
+      //only change the completed
       task.completed = formCompleted;
-      await task.save({fields:['completed']});
-      return res.redirect('/tasks')
+      await task.save({ fields: ["completed"] });
+      return res.redirect("/tasks");
     }
 
-    if(formCompleted === String(task.completed) && formDate.length === 0){// only change the description
+    if (formCompleted === String(task.completed) && formDate.length === 0) {
+      // only change the description
 
-      task.description = formDescription
-      await task.save({fields:['description']})
-      return res.redirect('tasks')
+      task.description = formDescription;
+      await task.save({ fields: ["description"] });
+      return res.redirect("tasks");
     }
 
-    if(formDescription.length === 0 && formCompleted === String(task.completed)){ //change only the date
-      task.date = formDate
-      await task.save({fields:['date']})
-      return res.redirect('tasks')
+    if (
+      formDescription.length === 0 &&
+      formCompleted === String(task.completed)
+    ) {
+      //change only the date
+      task.date = formDate;
+      await task.save({ fields: ["date"] });
+      return res.redirect("tasks");
     }
 
-    if(formDescription.length === 0){ // change date and completed
+    if (formDescription.length === 0) {
+      // change date and completed
       task.date = formDate;
       task.completed = formCompleted;
       await task.save({ fields: ["date", "completed"] });
       return res.redirect("tasks");
     }
 
-    if(formDate.length === 0){ // change description and completed
+    if (formDate.length === 0) {
+      // change description and completed
       task.completed = formCompleted;
       task.description = formDescription;
       await task.save({ fields: ["completed", "description"] });
       return res.redirect("tasks");
     }
 
-    if(formCompleted === String(task.completed) && formDate.length >= 0 && formDescription >= 0){ //change description and date
+    if (
+      formCompleted === String(task.completed) &&
+      formDate.length >= 0 &&
+      formDescription >= 0
+    ) {
+      //change description and date
       task.date = formDate;
       task.description = formDescription;
-      await task.save({fields:['date','description']})
+      await task.save({ fields: ["date", "description"] });
       return res.redirect("tasks");
     }
 
-     task.description = formDescription
-     task.completed = formCompleted
-     task.date = formDate
-     await task.save()
+    task.description = formDescription;
+    task.completed = formCompleted;
+    task.date = formDate;
+    await task.save();
 
     res.redirect("/tasks");
   } catch (e) {
@@ -294,17 +456,17 @@ app.post("/edittask", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get('/deletetask', isAuthenticated, async (req,res)=>{
+app.get("/deletetask", isAuthenticated, async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { UserId: req.user.id } });
     const tasksCount = await Task.count({ where: { UserId: req.user.id } });
 
-    if(tasksCount === 0){
+    if (tasksCount === 0) {
       return res.render("messagePage", {
         title: "No Tasks Yet",
         name: "Daniel Cambinda",
         user: req.user,
-        message: "You have no tasks"
+        message: "You have no tasks",
       });
     }
     res.render("deletetask", {
@@ -321,13 +483,13 @@ app.get('/deletetask', isAuthenticated, async (req,res)=>{
       message: "Something went wrong. Please try again.",
     });
   }
-})
+});
 
-app.post('/deletetask', isAuthenticated,async (req,res)=>{
-  const formId = req.body.id
+app.post("/deletetask", isAuthenticated, async (req, res) => {
+  const formId = req.body.id;
   try {
-    await Task.destroy({where:{id:formId}})
-    res.redirect('/tasks')
+    await Task.destroy({ where: { id: formId } });
+    res.redirect("/tasks");
   } catch (e) {
     res.render("messagePage", {
       title: "Error",
@@ -336,7 +498,7 @@ app.post('/deletetask', isAuthenticated,async (req,res)=>{
       message: "Something went wrong. Please try again.",
     });
   }
-})
+});
 
 app.get("/profile", isAuthenticated, (req, res) => {
   try {
@@ -355,31 +517,33 @@ app.get("/profile", isAuthenticated, (req, res) => {
   }
 });
 
-app.post('/editprofile', isAuthenticated, async (req,res)=>{
-  
-  try { 
-
+app.post("/editprofile", isAuthenticated, async (req, res) => {
+  try {
     const formName = req.body.name;
     const formEmail = req.body.email;
     const formPassword = req.body.password;
 
     const user = await User.findOne({ where: { email: formEmail } });
 
-    if (formEmail.length === 0 && formName.length === 0 && formPassword.length === 0) {
-          return res.render("messagePage", {
-            title: "No changes",
-            name: "Daniel Cambinda",
-            user: req.user,
-            message: "No changes applied.",
-          });
+    if (
+      formEmail.length === 0 &&
+      formName.length === 0 &&
+      formPassword.length === 0
+    ) {
+      return res.render("messagePage", {
+        title: "No changes",
+        name: "Daniel Cambinda",
+        user: req.user,
+        message: "No changes applied.",
+      });
     }
 
-    if(formEmail === req.user.email){
+    if (formEmail === req.user.email) {
       return res.render("messagePage", {
         title: "Error",
         name: "Daniel Cambinda",
         user: req.user,
-        message: "You are try to change to your own email, try another email."
+        message: "You are try to change to your own email, try another email.",
       });
     }
 
@@ -392,42 +556,48 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
       });
     }
 
-    if(formEmail.length === 0 && formPassword.length === 0){ // only change name
-      req.user.name = formName
-      await req.user.save({fields:['name']})
-      return res.redirect('/profile')
+    if (formEmail.length === 0 && formPassword.length === 0) {
+      // only change name
+      req.user.name = formName;
+      await req.user.save({ fields: ["name"] });
+      return res.redirect("/profile");
     }
 
-    if(formName.length === 0 && formPassword.length === 0){ // only change email
+    if (formName.length === 0 && formPassword.length === 0) {
+      // only change email
       req.user.email = formEmail;
       await req.user.save({ fields: ["email"] });
       return res.redirect("/profile");
     }
 
-    if(formEmail.length === 0 && formName.length === 0){ //only change password
+    if (formEmail.length === 0 && formName.length === 0) {
+      //only change password
       req.user.password = formPassword;
       await req.user.save({ fields: ["password"] });
-      req.logOut()
-      return res.redirect("/login");
-    }
-
-    if(formName.length === 0 ){ //change email and password
-      req.user.email = formEmail;
-      req.user.password = formPassword;
-      await req.user.save({ fields: ['email',"password"] });
       req.logOut();
       return res.redirect("/login");
     }
 
-    if(formEmail.length === 0 ){ //change name and password
+    if (formName.length === 0) {
+      //change email and password
+      req.user.email = formEmail;
+      req.user.password = formPassword;
+      await req.user.save({ fields: ["email", "password"] });
+      req.logOut();
+      return res.redirect("/login");
+    }
+
+    if (formEmail.length === 0) {
+      //change name and password
       req.user.name = formName;
       req.user.password = formPassword;
       await req.user.save({ fields: ["name", "password"] });
-      req.logOut()
-      return res.redirect('/login')
+      req.logOut();
+      return res.redirect("/login");
     }
 
-    if(formPassword.length === 0 ){ //change name and email
+    if (formPassword.length === 0) {
+      //change name and email
       req.user.email = formEmail;
       req.user.name = formName;
       await req.user.save({ fields: ["email", "name"] });
@@ -436,11 +606,10 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
 
     req.user.name = formName;
     req.user.password = formPassword;
-    req.user.email = formEmail
-    await req.user.save({ fields: ["name", "password",'email'] });
+    req.user.email = formEmail;
+    await req.user.save({ fields: ["name", "password", "email"] });
     req.logOut();
-    res.redirect('/login')
-    
+    res.redirect("/login");
   } catch (e) {
     res.render("messagePage", {
       title: "Error",
@@ -449,20 +618,18 @@ app.post('/editprofile', isAuthenticated, async (req,res)=>{
       message: "Something went wrong. Please try again.",
     });
   }
-})
+});
 
-app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
+app.post("/deleteprofile", isAuthenticated, async (req, res) => {
   try {
-
-    let emailToSend=req.user.email
-    let nameToSend = req.user.name
-    await req.user.destroy()
-    req.logOut()
-    //sendCancelationEmail(emailToSend,nameToSend)    
-    res.redirect('/')
-
+    let emailToSend = req.user.email;
+    let nameToSend = req.user.name;
+    await req.user.destroy();
+    req.logOut();
+    //sendCancelationEmail(emailToSend,nameToSend)
+    res.redirect("/");
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.render("messagePage", {
       title: "Error",
       name: "Daniel Cambinda",
@@ -470,7 +637,7 @@ app.post('/deleteprofile', isAuthenticated,async (req,res)=>{
       message: "Something went wrong. Please try again.",
     });
   }
-})
+});
 
 app.get("/logout", isAuthenticated, (req, res) => {
   req.logout();
