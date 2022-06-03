@@ -178,7 +178,7 @@ app.get("/tasks", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/filteredtasks", isAuthenticated, async (req, res) => {
+app.post("/tasks", isAuthenticated, async (req, res) => {
   
 });
 

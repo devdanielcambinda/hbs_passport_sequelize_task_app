@@ -59,20 +59,4 @@ User.prototype.validPassword =function(password){
     return bcrypt.compare(password,this.password)
 }
 
-User.prototype.getNotesWithDescriptionsLike= async function(user, searchTerm){
-
-  const tasks = await Task.findAll({
-    where: {
-      description: {
-        [Op.like]: `%${searchTerm}%`,
-      },
-      UserId: user.id
-    }
-  });
-
-  if(tasks){
-    return tasks;
-  }
-}
-
 module.exports = User
